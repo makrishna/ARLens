@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { margin: 0; overflow: hidden; }
+    #ar-container { position: relative; width: 100vw; height: 100vh; }
+  </style>
+
+  <!-- importmap MUST come before any module scripts -->
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.150.1/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.150.1/examples/jsm/"
+      }
+    }
+  </script>
+</head>
+<body>
+
+<div id="ar-container"></div>
+
+<script type="module">
+  import * as THREE from 'three';
+  import { MindARThree } from 'https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-three.prod.js';
+
+  (async () => {
+    const mindarThree = new MindARThree({
+      container: document.getElementById("ar-container"),
+      imageTargetSrc: "./targets.mind",
+      maxTrack: 1,
+    });
+
+    const { renderer, scene, camera } = mindarThree;
+
+    const video = document.createElement("video");
+    video.src = "./cover.mp4";
+    video.crossOrigin = "anonymous";
+    video.loop = true;
+    video.muted = true;
+    video.playsInline = true;
+
+    const videoTexture = new THREE.VideoTexture(video);
+    const geometry = new THREE.PlaneGeometry(1, 0.5625); // 16:9 ratio
+    const material = new THREE.MeshBasicMaterial({ map: videoTexture });
+    const videoPlane = new THREE.Mesh(geometry, material);
+
+    const anchor = mindarThree.addAnchor(0);
+    anchor.group.add(videoPlane);
+
+    anchor.onTargetFound = () => {
+      console.log("Target found! Playing video.");
+      video.play();
+    };
+    anchor.onTargetLost = () => {
+      console.log("Target lost. Pausing video.");
+      video.pause();
+    };
+
+    await mindarThree.start();
+
+    renderer.setAnimationLoop(() => {
+      renderer.render(scene, camera);
+    });
+  })();
+</script>
+
+</body>
+</html>

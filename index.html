@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ARLens — Web Augmented Reality</title>
+
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.150.1/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.150.1/examples/jsm/"
+      }
+    }
+  </script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --text:       #1a1a1a;
+      --text-muted: #6b6b6b;
+      --text-light: #999;
+      --bg:         #ffffff;
+      --bg-subtle:  #f5f5f5;
+      --border:     #e2e2e2;
+      --blue:       #2563eb;
+      --blue-hover: #1d4ed8;
+      --blue-light: #eff6ff;
+      --green:      #16a34a;
+      --radius:     6px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+      color: var(--text);
+      background: var(--bg);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 40px;
+      height: 60px;
+    }
+    .nav-logo {
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--text);
+      text-decoration: none;
+      letter-spacing: -0.2px;
+    }
+    .nav-logo span { color: var(--blue); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      list-style: none;
+    }
+    .nav-links a {
+      font-size: 14px;
+      color: var(--text-muted);
+      text-decoration: none;
+    }
+    .nav-links a:hover { color: var(--text); }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 500;
+      padding: 9px 18px;
+      border-radius: var(--radius);
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    .btn-primary {
+      background: var(--blue);
+      color: #fff;
+    }
+    .btn-primary:hover { background: var(--blue-hover); }
+    .btn-outline {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-outline:hover { background: var(--bg-subtle); }
+    .btn-lg {
+      font-size: 15px;
+      padding: 12px 24px;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 80px 40px 72px;
+      text-align: center;
+    }
+    .hero-label {
+      display: inline-block;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--blue);
+      background: var(--blue-light);
+      padding: 4px 12px;
+      border-radius: 100px;
+      margin-bottom: 24px;
+    }
+    h1 {
+      font-size: clamp(32px, 5vw, 52px);
+      font-weight: 700;
+      letter-spacing: -1px;
+      line-height: 1.1;
+      color: var(--text);
+      margin-bottom: 20px;
+    }
+    .hero-desc {
+      font-size: 18px;
+      color: var(--text-muted);
+      max-width: 520px;
+      margin: 0 auto 36px;
+      line-height: 1.65;
+    }
+    .hero-actions {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .hero-note {
+      margin-top: 16px;
+      font-size: 13px;
+      color: var(--text-light);
+    }
+
+    /* ── STATS ── */
+    .stats {
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-subtle);
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+    }
+    .stat {
+      padding: 28px 40px;
+      border-right: 1px solid var(--border);
+    }
+    .stat:last-child { border-right: none; }
+    .stat-value {
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.5px;
+    }
+    .stat-label {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    /* ── SECTIONS ── */
+    section { padding: 72px 40px; }
+    .section-wrap { max-width: 1060px; margin: 0 auto; }
+    .section-label {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--blue);
+      margin-bottom: 12px;
+    }
+    h2 {
+      font-size: clamp(24px, 3vw, 36px);
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      line-height: 1.2;
+      color: var(--text);
+      margin-bottom: 12px;
+    }
+    .section-desc {
+      font-size: 16px;
+      color: var(--text-muted);
+      max-width: 460px;
+      line-height: 1.65;
+    }
+
+    /* ── HOW IT WORKS ── */
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      margin-top: 48px;
+    }
+    .step {
+      background: var(--bg);
+      padding: 36px 32px;
+    }
+    .step-num {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--blue);
+      margin-bottom: 16px;
+    }
+    .step-icon {
+      width: 40px;
+      height: 40px;
+      background: var(--blue-light);
+      border-radius: var(--radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+      color: var(--blue);
+    }
+    .step-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+    .step-desc {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.65;
+    }
+
+    /* ── FEATURES ── */
+    .features-section { background: var(--bg-subtle); }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      margin-top: 48px;
+    }
+    .feature {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+    }
+    .feature.wide { grid-column: span 2; }
+    .feature-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: var(--radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 14px;
+    }
+    .feature-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+    .feature-desc {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    /* ── USE CASES ── */
+    .usecases {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-top: 48px;
+    }
+    .usecase {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px 20px;
+    }
+    .usecase-icon { font-size: 24px; margin-bottom: 10px; }
+    .usecase-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+    .usecase-desc {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.55;
+    }
+
+    /* ── CTA ── */
+    .cta-section {
+      background: var(--text);
+      color: #fff;
+      text-align: center;
+    }
+    .cta-section h2 { color: #fff; margin-bottom: 12px; }
+    .cta-desc {
+      font-size: 16px;
+      color: rgba(255,255,255,0.6);
+      max-width: 400px;
+      margin: 0 auto 32px;
+      line-height: 1.65;
+    }
+    .cta-section .btn-primary {
+      background: #fff;
+      color: var(--text);
+    }
+    .cta-section .btn-primary:hover { background: #f0f0f0; }
+
+    /* ── FOOTER ── */
+    footer {
+      padding: 28px 40px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .footer-logo {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .footer-logo span { color: var(--blue); }
+    footer p {
+      font-size: 13px;
+      color: var(--text-light);
+    }
+
+    /* ── AR OVERLAY ── */
+    #ar-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 999;
+      background: #000;
+      display: none;
+      flex-direction: column;
+    }
+    #ar-overlay.active { display: flex; }
+
+    #ar-topbar {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 20px;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.6), transparent);
+    }
+    .ar-logo {
+      font-size: 15px;
+      font-weight: 600;
+      color: #fff;
+    }
+    .ar-logo span { color: #60a5fa; }
+
+    #ar-close {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: #fff;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 8px 14px;
+      border-radius: var(--radius);
+      cursor: pointer;
+    }
+    #ar-close:hover { background: rgba(255,255,255,0.18); }
+
+    #ar-container {
+      flex: 1;
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+
+    #ar-bottombar {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      z-index: 10;
+      padding: 20px;
+      background: linear-gradient(to top, rgba(0,0,0,0.55), transparent);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+    #ar-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0,0,0,0.5);
+      border: 1px solid rgba(255,255,255,0.15);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 9px 16px;
+      border-radius: 100px;
+    }
+    #ar-status-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: #60a5fa;
+      animation: blink 2s ease-in-out infinite;
+    }
+    #ar-status-dot.found { background: #4ade80; animation: none; }
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+    #ar-hint {
+      font-size: 12px;
+      color: rgba(255,255,255,0.4);
+    }
+
+    /* Reticle */
+    #ar-reticle {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 200px; height: 200px;
+      pointer-events: none;
+      z-index: 5;
+    }
+    .corner {
+      position: absolute;
+      width: 24px; height: 24px;
+      border-color: rgba(255,255,255,0.7);
+      border-style: solid;
+    }
+    .corner.tl { top:0; left:0; border-width: 2px 0 0 2px; }
+    .corner.tr { top:0; right:0; border-width: 2px 2px 0 0; }
+    .corner.bl { bottom:0; left:0; border-width: 0 0 2px 2px; }
+    .corner.br { bottom:0; right:0; border-width: 0 2px 2px 0; }
+    .scan-line {
+      position: absolute;
+      left: 8px; right: 8px;
+      height: 1px;
+      background: rgba(255,255,255,0.5);
+      top: 8px;
+      animation: scan 2.2s ease-in-out infinite;
+    }
+    @keyframes scan {
+      0%   { top: 8px; opacity: 0; }
+      8%   { opacity: 1; }
+      92%  { opacity: 1; }
+      100% { top: calc(100% - 10px); opacity: 0; }
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 860px) {
+      nav { padding: 0 20px; }
+      .nav-links { display: none; }
+      section { padding: 56px 20px; }
+      .hero { padding: 56px 20px; }
+      .stats { grid-template-columns: 1fr; }
+      .stat { border-right: none; border-bottom: 1px solid var(--border); }
+      .stat:last-child { border-bottom: none; }
+      .steps { grid-template-columns: 1fr; }
+      .features-grid { grid-template-columns: 1fr; }
+      .feature.wide { grid-column: span 1; }
+      .usecases { grid-template-columns: repeat(2, 1fr); }
+      footer { flex-direction: column; gap: 8px; text-align: center; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="#">AR<span>Lens</span></a>
+  <ul class="nav-links">
+    <li><a href="#how">How it works</a></li>
+    <li><a href="#features">Features</a></li>
+    <li><a href="#usecases">Use cases</a></li>
+    <li>
+      <button class="btn btn-primary" id="nav-launch-btn">Launch AR</button>
+    </li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-label">Web-based augmented reality</div>
+  <h1>Scan a printed image.<br>Watch video appear on it.</h1>
+  <p class="hero-desc">
+    ARLens overlays video onto any registered image through your phone camera — no app install, no QR code. Just open a link and point.
+  </p>
+  <div class="hero-actions">
+    <button class="btn btn-primary btn-lg" id="hero-launch-btn">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="3"/><path d="M3 7V5a2 2 0 012-2h2M17 3h2a2 2 0 012 2v2M21 17v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2"/>
+      </svg>
+      Open AR camera
+    </button>
+    <a class="btn btn-outline btn-lg" href="#how">How it works</a>
+  </div>
+  <p class="hero-note">Works in Safari and Chrome · Requires camera permission · HTTPS only</p>
+</div>
+
+<!-- STATS -->
+<div class="stats">
+  <div class="stat">
+    <div class="stat-value">&lt; 50 ms</div>
+    <div class="stat-label">Image detection latency</div>
+  </div>
+  <div class="stat">
+    <div class="stat-value">No install</div>
+    <div class="stat-label">Runs entirely in the browser</div>
+  </div>
+  <div class="stat">
+    <div class="stat-value">iOS + Android</div>
+    <div class="stat-label">Cross-platform camera support</div>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<section id="how">
+  <div class="section-wrap">
+    <div class="section-label">How it works</div>
+    <h2>Three steps from image to video</h2>
+    <p class="section-desc">No plugins or native SDKs. Everything runs in the browser using WebAR and WebGL.</p>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/>
+          </svg>
+        </div>
+        <div class="step-num">Step 1</div>
+        <div class="step-title">Register a target image</div>
+        <div class="step-desc">Upload any printed image — a poster, label, or artwork. ARLens compiles a feature map the tracker uses to recognise it through the camera.</div>
+      </div>
+      <div class="step">
+        <div class="step-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"/><path d="M3 7V5a2 2 0 012-2h2M17 3h2a2 2 0 012 2v2M21 17v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2"/>
+          </svg>
+        </div>
+        <div class="step-num">Step 2</div>
+        <div class="step-title">Open the AR camera</div>
+        <div class="step-desc">Tap "Open AR camera" on any device with a browser. The camera stream opens in-page — no app download, no extra permissions dialogs.</div>
+      </div>
+      <div class="step">
+        <div class="step-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/>
+          </svg>
+        </div>
+        <div class="step-num">Step 3</div>
+        <div class="step-title">Video plays over the image</div>
+        <div class="step-desc">Point at the registered image. The tracker locks on and pins a video plane over it in real time — it stays attached as you move the camera.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features" class="features-section">
+  <div class="section-wrap">
+    <div class="section-label">Features</div>
+    <h2>Built to ship, not just to demo</h2>
+    <p class="section-desc">Everything needed to run a production WebAR experience without managing a native app.</p>
+
+    <div class="features-grid">
+      <div class="feature">
+        <div class="feature-icon" style="background:#eff6ff; color:#2563eb;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+          </svg>
+        </div>
+        <div class="feature-title">Real-time image tracking</div>
+        <div class="feature-desc">Detects and tracks printed images at 30 fps, even with motion blur or partial occlusion, using MindAR's feature-matching engine.</div>
+      </div>
+
+      <div class="feature">
+        <div class="feature-icon" style="background:#f0fdf4; color:#16a34a;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/>
+          </svg>
+        </div>
+        <div class="feature-title">No app install needed</div>
+        <div class="feature-desc">Share a URL. Users tap it and the experience opens in Safari or Chrome — nothing to download from the App Store or Play Store.</div>
+      </div>
+
+      <div class="feature">
+        <div class="feature-icon" style="background:#fefce8; color:#ca8a04;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/>
+          </svg>
+        </div>
+        <div class="feature-title">Three.js WebGL renderer</div>
+        <div class="feature-desc">Video overlays run inside a Three.js scene, so lighting, transparency, 3D objects, and post-processing effects are all available on the same canvas.</div>
+      </div>
+
+      <div class="feature">
+        <div class="feature-icon" style="background:#fef2f2; color:#dc2626;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+        </div>
+        <div class="feature-title">Private by default</div>
+        <div class="feature-desc">All camera processing happens locally in the browser. No video frames are sent to any server.</div>
+      </div>
+
+      <div class="feature wide">
+        <div class="feature-icon" style="background:#eff6ff; color:#2563eb;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/>
+          </svg>
+        </div>
+        <div class="feature-title">Scales to production</div>
+        <div class="feature-desc">Serve as a static site from any CDN. Add multiple target images, dynamic video sources, and analytics with no backend required. For enterprise-grade tracking on challenging surfaces — shiny packaging, low-contrast print — swap the engine to 8th Wall or Unity WebGL with a single configuration change.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- USE CASES -->
+<section id="usecases">
+  <div class="section-wrap">
+    <div class="section-label">Use cases</div>
+    <h2>For any industry that prints</h2>
+    <p class="section-desc">Anywhere a printed surface meets a smartphone, ARLens turns it into interactive content.</p>
+
+    <div class="usecases">
+      <div class="usecase">
+        <div class="usecase-icon">🏬</div>
+        <div class="usecase-title">Retail & packaging</div>
+        <div class="usecase-desc">Bring product labels to life with ingredient stories, how-to videos, or brand campaigns.</div>
+      </div>
+      <div class="usecase">
+        <div class="usecase-icon">🎨</div>
+        <div class="usecase-title">Art & exhibitions</div>
+        <div class="usecase-desc">Layer artist commentary or animations over gallery prints and museum displays.</div>
+      </div>
+      <div class="usecase">
+        <div class="usecase-icon">📚</div>
+        <div class="usecase-title">Education</div>
+        <div class="usecase-desc">Textbook diagrams that play explainer videos. Field guides with 3D anatomy overlays.</div>
+      </div>
+      <div class="usecase">
+        <div class="usecase-icon">🏗️</div>
+        <div class="usecase-title">Architecture</div>
+        <div class="usecase-desc">Scan a floor plan and walk through a rendered interior before construction begins.</div>
+      </div>
+      <div class="usecase">
+        <div class="usecase-icon">📣</div>
+        <div class="usecase-title">Events & marketing</div>
+        <div class="usecase-desc">Turn event badges, posters, and billboards into interactive campaign touchpoints.</div>
+      </div>
+      <div class="usecase">
+        <div class="usecase-icon">🏥</div>
+        <div class="usecase-title">Healthcare</div>
+        <div class="usecase-desc">Patient leaflets that play procedure walkthroughs to support informed consent.</div>
+      </div>
+      <div class="usecase">
+        <div class="usecase-icon">🎮</div>
+        <div class="usecase-title">Gaming & collectibles</div>
+        <div class="usecase-desc">Trading cards and limited-edition prints with hidden video or 3D content.</div>
+      </div>
+      <div class="usecase">
+        <div class="usecase-icon">🏛️</div>
+        <div class="usecase-title">Tourism & heritage</div>
+        <div class="usecase-desc">Historical photos that animate, maps that narrate, monuments that tell their story.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="section-wrap" style="text-align:center; max-width:600px;">
+    <h2>Try it — no signup needed</h2>
+    <p class="cta-desc">Point your camera at the registered image and watch your content appear in seconds.</p>
+    <button class="btn btn-primary btn-lg" id="cta-launch-btn">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="3"/><path d="M3 7V5a2 2 0 012-2h2M17 3h2a2 2 0 012 2v2M21 17v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2"/>
+      </svg>
+      Open AR camera
+    </button>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">AR<span>Lens</span></div>
+  <p>Built with MindAR.js + Three.js · Runs in your browser</p>
+</footer>
+
+
+<!-- AR OVERLAY -->
+<div id="ar-overlay">
+  <div id="ar-topbar">
+    <div class="ar-logo">AR<span>Lens</span></div>
+    <button id="ar-close">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+        <path d="M18 6L6 18M6 6l12 12"/>
+      </svg>
+      Close
+    </button>
+  </div>
+
+  <div id="ar-container">
+    <div id="ar-reticle">
+      <div class="corner tl"></div>
+      <div class="corner tr"></div>
+      <div class="corner bl"></div>
+      <div class="corner br"></div>
+      <div class="scan-line"></div>
+    </div>
+  </div>
+
+  <div id="ar-bottombar">
+    <div id="ar-status">
+      <div id="ar-status-dot"></div>
+      <span id="ar-status-text">Scanning for target image…</span>
+    </div>
+    <div id="ar-hint">Point your camera at the registered image</div>
+  </div>
+</div>
+
+
+<!-- SCRIPTS -->
+<script type="module">
+  import * as THREE from 'three';
+  import { MindARThree } from 'https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-three.prod.js';
+
+  const overlay    = document.getElementById('ar-overlay');
+  const statusDot  = document.getElementById('ar-status-dot');
+  const statusText = document.getElementById('ar-status-text');
+  const reticle    = document.getElementById('ar-reticle');
+
+  let mindarThree = null;
+  let arRunning   = false;
+
+  async function startAR() {
+    if (arRunning) return;
+    overlay.classList.add('active');
+    document.body.style.overflow = 'hidden';
+
+    try {
+      mindarThree = new MindARThree({
+        container: document.getElementById('ar-container'),
+        imageTargetSrc: './targets.mind',
+        maxTrack: 1,
+      });
+
+      const { renderer, scene, camera } = mindarThree;
+
+      const video = document.createElement('video');
+      video.src = './cover.mp4';
+      video.crossOrigin = 'anonymous';
+      video.loop = true;
+      video.muted = true;
+      video.playsInline = true;
+
+      const videoTexture = new THREE.VideoTexture(video);
+      const geometry = new THREE.PlaneGeometry(1, 1.7778); // 9:16 — adjust to your image ratio
+      const material = new THREE.MeshBasicMaterial({ map: videoTexture });
+      const videoPlane = new THREE.Mesh(geometry, material);
+
+      const anchor = mindarThree.addAnchor(0);
+      anchor.group.add(videoPlane);
+
+      anchor.onTargetFound = () => {
+        video.play();
+        reticle.style.display = 'none';
+        statusDot.classList.add('found');
+        statusText.textContent = 'Target locked — video playing';
+      };
+      anchor.onTargetLost = () => {
+        video.pause();
+        reticle.style.display = 'block';
+        statusDot.classList.remove('found');
+        statusText.textContent = 'Scanning for target image…';
+      };
+
+      await mindarThree.start();
+      arRunning = true;
+      renderer.setAnimationLoop(() => renderer.render(scene, camera));
+
+    } catch (err) {
+      console.error('AR error:', err);
+      statusText.textContent = 'Camera access denied or not supported.';
+    }
+  }
+
+  async function stopAR() {
+    if (!arRunning || !mindarThree) return;
+    try {
+      mindarThree.renderer.setAnimationLoop(null);
+      await mindarThree.stop();
+    } catch (e) {}
+    mindarThree = null;
+    arRunning = false;
+    overlay.classList.remove('active');
+    document.body.style.overflow = '';
+    statusDot.classList.remove('found');
+    statusText.textContent = 'Scanning for target image…';
+    reticle.style.display = 'block';
+  }
+
+  document.getElementById('hero-launch-btn').addEventListener('click', startAR);
+  document.getElementById('cta-launch-btn').addEventListener('click', startAR);
+  document.getElementById('nav-launch-btn').addEventListener('click', startAR);
+  document.getElementById('ar-close').addEventListener('click', stopAR);
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && arRunning) stopAR(); });
+</script>
+
+</body>
+</html>
