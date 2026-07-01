@@ -769,14 +769,14 @@
     try {
       mindarThree = new MindARThree({
         container: document.getElementById('ar-container'),
-        imageTargetSrc: './targets.mind',
+        imageTargetSrc: './dance.mind',
         maxTrack: 1,
       });
 
       const { renderer, scene, camera } = mindarThree;
 
       const video = document.createElement('video');
-      video.src = './cover.mp4';
+      video.src = './dance.mp4';
       video.crossOrigin = 'anonymous';
       video.loop = true;
       video.muted = true;
