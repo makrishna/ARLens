@@ -1,0 +1,306 @@
+/* ===========================================================
+   WallCraft Mural Fit Finder
+   Design tokens:
+   --plaster   #F2EFE9  background, wall colour
+   --ink       #23211D  primary text / linework
+   --ochre     #C17A3D  pigment accent (matches, primary actions)
+   --slate     #3D4A5C  secondary accent (structure, ruler lines)
+   --rust      #9C4A32  alert / score-high accent
+   --sage      #6E7F63  tertiary accent (tags)
+   =========================================================== */
+
+:root {
+  --plaster: #F2EFE9;
+  --plaster-dim: #E7E2D8;
+  --ink: #23211D;
+  --ink-soft: #55524A;
+  --ochre: #C17A3D;
+  --ochre-dim: #E4C9A8;
+  --slate: #3D4A5C;
+  --rust: #9C4A32;
+  --sage: #6E7F63;
+  --line: rgba(35,33,29,0.14);
+
+  --display: 'Zilla Slab', Georgia, serif;
+  --body: 'IBM Plex Sans', -apple-system, sans-serif;
+  --mono: 'IBM Plex Mono', ui-monospace, monospace;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--plaster);
+  color: var(--ink);
+  font-family: var(--body);
+  line-height: 1.5;
+  background-image:
+    linear-gradient(var(--line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+/* ---------- Header ---------- */
+.msf-header {
+  padding: 56px 24px 40px;
+  border-bottom: 2px solid var(--ink);
+}
+.msf-header__inner { max-width: 920px; margin: 0 auto; }
+.msf-eyebrow {
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--slate);
+}
+.msf-title {
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: clamp(32px, 5vw, 52px);
+  line-height: 1.05;
+  margin: 14px 0 16px;
+  color: var(--ink);
+}
+.msf-title span { color: var(--ochre); }
+.msf-sub {
+  max-width: 560px;
+  color: var(--ink-soft);
+  font-size: 16px;
+}
+
+/* ---------- Layout ---------- */
+.msf-layout {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 40px 24px 80px;
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: 28px;
+  align-items: start;
+}
+@media (max-width: 880px) {
+  .msf-layout { grid-template-columns: 1fr; }
+}
+
+.msf-panel {
+  background: #fff;
+  border: 1.5px solid var(--ink);
+  border-radius: 2px;
+  padding: 28px;
+}
+
+/* ---------- Form ---------- */
+.msf-field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+.msf-field label {
+  display: block;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--slate);
+  margin-bottom: 6px;
+}
+.msf-input-unit {
+  display: flex;
+  align-items: stretch;
+  border: 1.5px solid var(--ink);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.msf-input-unit input {
+  width: 100%;
+  border: none;
+  padding: 10px 12px;
+  font-family: var(--mono);
+  font-size: 18px;
+  color: var(--ink);
+  background: var(--plaster);
+}
+.msf-input-unit input:focus { outline: 2px solid var(--ochre); outline-offset: -2px; }
+.msf-unit-tag {
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  background: var(--ink);
+  color: var(--plaster);
+  font-family: var(--mono);
+  font-size: 13px;
+}
+.msf-field select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1.5px solid var(--ink);
+  border-radius: 2px;
+  background: var(--plaster);
+  font-family: var(--body);
+  font-size: 14px;
+  color: var(--ink);
+}
+
+/* ---------- Elevation drawing ---------- */
+.msf-elevation-wrap { margin-top: 8px; }
+.msf-elevation {
+  width: 100%;
+  height: auto;
+  background: var(--plaster-dim);
+  border: 1px dashed var(--slate);
+}
+.msf-elevation-caption {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--ink-soft);
+  margin-top: 8px;
+}
+#ratioReadout { color: var(--ochre); font-weight: 600; }
+
+/* ---------- Results ---------- */
+.msf-results-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+.msf-results-head h2,
+.msf-custom-panel h2 {
+  font-family: var(--display);
+  font-size: 22px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.msf-btn {
+  font-family: var(--mono);
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  padding: 10px 16px;
+  border-radius: 2px;
+  cursor: pointer;
+  border: 1.5px solid var(--ink);
+  transition: transform 0.12s ease;
+}
+.msf-btn:hover { transform: translateY(-1px); }
+.msf-btn:active { transform: translateY(0); }
+.msf-btn--ghost { background: transparent; color: var(--ink); }
+.msf-btn--primary { background: var(--ochre); color: #fff; border-color: var(--ochre); }
+.msf-btn:disabled { opacity: 0.55; cursor: progress; transform: none; }
+
+.msf-results-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 14px;
+}
+
+.msf-card {
+  border: 1.5px solid var(--ink);
+  border-radius: 2px;
+  overflow: hidden;
+  background: var(--plaster);
+  display: flex;
+  flex-direction: column;
+}
+.msf-card__img {
+  aspect-ratio: 4 / 3;
+  background: var(--plaster-dim);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--slate);
+  font-family: var(--mono);
+  font-size: 11px;
+  overflow: hidden;
+}
+.msf-card__img img { width: 100%; height: 100%; object-fit: cover; }
+.msf-card__body { padding: 12px 14px 14px; }
+.msf-card__title {
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 16px;
+  margin: 0 0 4px;
+}
+.msf-card__meta {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink-soft);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.msf-score {
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 2px;
+  background: var(--sage);
+  color: #fff;
+}
+.msf-score--high { background: var(--rust); }
+.msf-empty {
+  grid-column: 1 / -1;
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--ink-soft);
+  padding: 20px 0;
+}
+
+.msf-ai-note {
+  margin-top: 16px;
+  padding: 14px 16px;
+  border-left: 3px solid var(--ochre);
+  background: var(--ochre-dim);
+}
+.msf-ai-note__label {
+  font-family: var(--mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--rust);
+  display: block;
+  margin-bottom: 4px;
+}
+.msf-ai-note p { margin: 0; font-size: 14px; color: var(--ink); }
+
+/* ---------- Custom generation ---------- */
+.msf-custom-panel {
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1.5px solid var(--ink);
+}
+.msf-custom-sub { color: var(--ink-soft); font-size: 14px; margin: 4px 0 14px; }
+#customPrompt {
+  width: 100%;
+  padding: 12px;
+  border: 1.5px solid var(--ink);
+  border-radius: 2px;
+  font-family: var(--body);
+  font-size: 14px;
+  resize: vertical;
+  margin-bottom: 12px;
+  background: var(--plaster);
+}
+.msf-custom-result {
+  margin-top: 16px;
+  border: 1.5px solid var(--ink);
+  padding: 12px;
+}
+.msf-custom-result img { width: 100%; display: block; border: 1px solid var(--line); }
+.msf-custom-result p { font-family: var(--mono); font-size: 12px; color: var(--ink-soft); margin-top: 8px; }
+
+/* ---------- Footer ---------- */
+.msf-footer {
+  text-align: center;
+  padding: 24px;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--ink-soft);
+  border-top: 2px solid var(--ink);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .msf-btn { transition: none; }
+}

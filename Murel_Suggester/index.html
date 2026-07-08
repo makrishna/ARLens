@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mural Fit Finder — WallCraft</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="mural-suggester.css">
+</head>
+<body>
+
+<header class="msf-header">
+  <div class="msf-header__inner">
+    <span class="msf-eyebrow">WallCraft / Mural Fit Finder</span>
+    <h1 class="msf-title">Measure the wall. <span>See the mural.</span></h1>
+    <p class="msf-sub">Enter your wall's dimensions and we'll draw it to scale, then match it against our catalogue — or generate something made to fit.</p>
+  </div>
+</header>
+
+<main class="msf-layout">
+
+  <!-- Left: input + elevation drawing -->
+  <section class="msf-panel msf-panel--draw" aria-label="Wall dimensions and elevation preview">
+    <form id="dimForm" class="msf-form">
+      <div class="msf-field-row">
+        <div class="msf-field">
+          <label for="wallWidth">Wall width</label>
+          <div class="msf-input-unit">
+            <input type="number" id="wallWidth" min="0.3" max="30" step="0.05" value="3.6" required>
+            <span class="msf-unit-tag">m</span>
+          </div>
+        </div>
+        <div class="msf-field">
+          <label for="wallHeight">Wall height</label>
+          <div class="msf-input-unit">
+            <input type="number" id="wallHeight" min="0.3" max="10" step="0.05" value="2.4" required>
+            <span class="msf-unit-tag">m</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="msf-field-row">
+        <div class="msf-field">
+          <label for="roomType">Setting</label>
+          <select id="roomType">
+            <option value="">Any</option>
+            <option value="residential">Residential</option>
+            <option value="commercial">Commercial</option>
+            <option value="government">Government</option>
+            <option value="education">Education</option>
+            <option value="hospitality">Hospitality</option>
+            <option value="retail">Retail</option>
+          </select>
+        </div>
+        <div class="msf-field">
+          <label for="styleType">Style</label>
+          <select id="styleType">
+            <option value="">Any</option>
+            <option value="botanical">Botanical</option>
+            <option value="line-art">Line art</option>
+            <option value="abstract-tech">Abstract / tech</option>
+            <option value="landscape">Landscape</option>
+            <option value="pattern">Pattern</option>
+            <option value="map-art">Map art</option>
+            <option value="illustrative">Illustrative</option>
+            <option value="minimal">Minimal</option>
+          </select>
+        </div>
+      </div>
+    </form>
+
+    <div class="msf-elevation-wrap">
+      <svg id="elevationSvg" class="msf-elevation" viewBox="0 0 640 420" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Scaled wall elevation drawing"></svg>
+      <p class="msf-elevation-caption">Elevation drawn to scale — <span id="ratioReadout">1.50 : 1</span> width-to-height</p>
+    </div>
+  </section>
+
+  <!-- Right: results -->
+  <section class="msf-panel msf-panel--results" aria-label="Suggested murals">
+
+    <div class="msf-results-head">
+      <h2>Closest fits from our catalogue</h2>
+      <button id="askAiBtn" type="button" class="msf-btn msf-btn--ghost">Ask the AI to pick</button>
+    </div>
+
+    <div id="resultsGrid" class="msf-results-grid"></div>
+
+    <div id="aiNote" class="msf-ai-note" hidden>
+      <span class="msf-ai-note__label">AI take</span>
+      <p id="aiNoteText"></p>
+    </div>
+
+    <div class="msf-custom-panel">
+      <h2>Or generate one made for this wall</h2>
+      <p class="msf-custom-sub">Describe what you want. The design is generated at your wall's exact proportions.</p>
+      <textarea id="customPrompt" rows="3" placeholder="e.g. a native cockatoo taking off from a gum branch, soft watercolour style, cream background"></textarea>
+      <button id="generateBtn" type="button" class="msf-btn msf-btn--primary">Generate custom mural</button>
+      <div id="customResult" class="msf-custom-result" hidden></div>
+    </div>
+
+  </section>
+</main>
+
+<footer class="msf-footer">
+  <p>WallCraft — UV-cured digital wall printing, Canberra &amp; the ACT.</p>
+</footer>
+
+<script src="mural-suggester.js"></script>
+</body>
+</html>
