@@ -783,7 +783,7 @@
       video.playsInline = true;
 
       const videoTexture = new THREE.VideoTexture(video);
-      const geometry = new THREE.PlaneGeometry(0.8889, 0.47); // 9:16 — adjust to your image ratio
+      const geometry = new THREE.PlaneGeometry(1, 0.4229); // 9:16 — adjust to your image ratio
       const material = new THREE.MeshBasicMaterial({ map: videoTexture });
       const videoPlane = new THREE.Mesh(geometry, material);
 
