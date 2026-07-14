@@ -1,0 +1,23 @@
+{
+  "imagePath": "image-targets/wallcraft-target_luminance.png",
+  "metadata": null,
+  "name": "wallcraft-target",
+  "type": "PLANAR",
+  "properties": {
+    "left": 0,
+    "top": 347,
+    "width": 672,
+    "height": 896,
+    "isRotated": true,
+    "originalWidth": 672,
+    "originalHeight": 1589
+  },
+  "resources": {
+    "originalImage": "wallcraft-target_original.png",
+    "croppedImage": "wallcraft-target_cropped.png",
+    "thumbnailImage": "wallcraft-target_thumbnail.png",
+    "luminanceImage": "wallcraft-target_luminance.png"
+  },
+  "created": 1783932755379,
+  "updated": 1783932755379
+}

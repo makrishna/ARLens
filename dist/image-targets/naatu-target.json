@@ -1,0 +1,23 @@
+{
+  "imagePath": "image-targets/naatu-target_luminance.png",
+  "metadata": null,
+  "name": "naatu-target",
+  "type": "PLANAR",
+  "properties": {
+    "left": 128,
+    "top": 0,
+    "width": 768,
+    "height": 1024,
+    "isRotated": true,
+    "originalWidth": 1024,
+    "originalHeight": 1024
+  },
+  "resources": {
+    "originalImage": "naatu-target_original.png",
+    "croppedImage": "naatu-target_cropped.png",
+    "thumbnailImage": "naatu-target_thumbnail.png",
+    "luminanceImage": "naatu-target_luminance.png"
+  },
+  "created": 1783937145160,
+  "updated": 1783937145160
+}
