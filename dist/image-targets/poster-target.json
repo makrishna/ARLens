@@ -1,0 +1,23 @@
+{
+  "imagePath": "image-targets/poster-target_luminance.jpg",
+  "metadata": null,
+  "name": "poster-target",
+  "type": "PLANAR",
+  "properties": {
+    "left": 0,
+    "top": 86,
+    "width": 1024,
+    "height": 1365,
+    "isRotated": false,
+    "originalWidth": 1024,
+    "originalHeight": 1536
+  },
+  "resources": {
+    "originalImage": "poster-target_original.jpg",
+    "croppedImage": "poster-target_cropped.jpg",
+    "thumbnailImage": "poster-target_thumbnail.jpg",
+    "luminanceImage": "poster-target_luminance.jpg"
+  },
+  "created": 1784026703812,
+  "updated": 1784026703812
+}
